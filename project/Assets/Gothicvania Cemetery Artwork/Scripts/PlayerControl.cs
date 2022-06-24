@@ -8,15 +8,16 @@ public class PlayerControl : MonoBehaviour
     private Rigidbody2D _rb;
     private SpriteRenderer _sprite;
     private Animator _anim;
-    // Cini sdbhsadbhjasnj
+    
     // movement parameters
     private float _horizontalInput;
     [SerializeField] private float speed = 2.5f;
     [SerializeField] private float jumpForce = 6f;
-    private float jumpPressedRememberTime = 0.2f;
-    private float AttackPressedRememberTime = 0.1f;
-    private float jumpPressedRemember, attackPressedRemember;
+    private const float JumpPressedRememberTime = 0.05f;
+    private float _jumpPressedRemember;
 
+    private bool _isAttacking;
+    
     
     // GroundCheck parameters
     public Transform groundCheck;
@@ -39,12 +40,13 @@ public class PlayerControl : MonoBehaviour
         _isGrounded = Physics2D.OverlapCircle(groundCheck.position, GroundCheckRadius, whatIsGround);
         
         // Attack
-        attackPressedRemember -= Time.deltaTime;
-        if (Input.GetButtonDown("Fire1")) Attack();
+        if (Input.GetButtonDown("Fire1") && _isGrounded) Attack();
+        
+        
         // Jump
-        jumpPressedRemember -= Time.deltaTime;
-        if (Input.GetButtonDown("Jump")) { jumpPressedRemember = jumpPressedRememberTime; }
-        if (jumpPressedRemember > 0 && _isGrounded) { _rb.velocity = new Vector2(_rb.velocity.x, jumpForce); }
+        _jumpPressedRemember -= Time.deltaTime;
+        if (Input.GetButtonDown("Jump")) { _jumpPressedRemember = JumpPressedRememberTime; }
+        if (_jumpPressedRemember > 0 && _isGrounded) { _rb.velocity = new Vector2(_rb.velocity.x, jumpForce); }
         
         SpriteAnimation();
     }
@@ -61,6 +63,7 @@ public class PlayerControl : MonoBehaviour
     {
         _anim.SetTrigger("Attack");
         _rb.velocity = Vector2.zero;
+
     }
     
     private void SpriteAnimation()
