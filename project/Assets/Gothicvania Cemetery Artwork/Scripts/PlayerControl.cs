@@ -16,7 +16,7 @@ public class PlayerControl : MonoBehaviour
     private const float JumpPressedRememberTime = 0.05f;
     private float _jumpPressedRemember;
 
-    private bool _isAttacking;
+    public bool _isAttacking;
     
     
     // GroundCheck parameters
@@ -52,26 +52,30 @@ public class PlayerControl : MonoBehaviour
     }
 
     private void FixedUpdate()
-    {   
-        
-        // Run
-        _horizontalInput = Input.GetAxis("Horizontal");
-        _rb.velocity = new Vector2(_horizontalInput*speed, _rb.velocity.y);
+    {
+        // Run 
+        if (!_isAttacking)
+        {
+            _horizontalInput = Input.GetAxis("Horizontal");
+            _rb.velocity = new Vector2(_horizontalInput*speed, _rb.velocity.y);
+        }
+        else
+        {
+            _rb.velocity = new Vector2(_horizontalInput*speed*0.8f, _rb.velocity.y);
+        }
     }
 
     private void Attack()
     {
         _anim.SetTrigger("Attack");
-        _rb.velocity = Vector2.zero;
-
     }
     
     private void SpriteAnimation()
     {
-        if (_horizontalInput > 0) _sprite.flipX = false;
-        else if (_horizontalInput < 0) _sprite.flipX = true;
+        if (_horizontalInput > 0 && !_isAttacking) transform.localScale = new Vector2(1,1);
+        else if (_horizontalInput < 0 && !_isAttacking) transform.localScale = new Vector2(-1,1);
         
-        if (_rb.velocity.x != 0) _anim.SetBool("Run", true);
+        if (_rb.velocity.x  < -0.5f || 0.5f < _rb.velocity.x) _anim.SetBool("Run", true);
         else _anim.SetBool("Run",false);
 
         if (!_isGrounded) _anim.SetBool("Jump",true);
